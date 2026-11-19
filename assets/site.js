@@ -208,7 +208,9 @@
     var hero = hello + '<section class="hero" aria-label="ピックアップ"><div class="wrap">' + sh('PICK UP', 'ピックアップ') +
       '<div class="hero-g">' + cardL(p[0]) + '<div class="hero-s">' + p.slice(1).map(cardS).join('') + '</div></div></div></section>';
     var news = S.news.slice().sort(byDate).slice(0, 5).map(function (n) { return row(fromNews(n), false); }).join('');
-    var feats = S.articles.filter(function (a) { return a.cat === 'feature' || a.cat === 'pickup'; }).sort(byDate).slice(0, 2).map(function (a) { return cardS(fromArt(a)); }).join('');
+    // 上のピックアップに出ている記事は、下の「特集・ピックアップ」には重ねて出さない
+    var picked = S.picks.filter(function (k) { return k.indexOf('a:') === 0; }).map(function (k) { return k.slice(2); });
+    var feats = S.articles.filter(function (a) { return (a.cat === 'feature' || a.cat === 'pickup') && picked.indexOf(a.id) < 0; }).sort(byDate).slice(0, 2).map(function (a) { return cardS(fromArt(a)); }).join('');
     var blogs = S.articles.filter(function (a) { return a.cat === 'blog'; }).sort(byDate).slice(0, 3).map(function (a) { return row(fromArt(a), true); }).join('');
     var main =
       '<section>' + sh('NEWS', '新着ニュース', 'news.html', 'ニュース一覧へ') + '<div class="rows">' + news + '</div></section>' +
@@ -218,7 +220,7 @@
       ['official', 'indie', 'hub'].map(function (t) {
         return '<a class="stat" href="contents.html#' + t + '"><b>' + typeCount(t) + '</b><span>' + TP[t] + '</span></a>';
       }).join('') + '</div></section>' +
-      '<section>' + sh('FEATURE', '特集・ピックアップ', 'features.html', '一覧へ') + '<div class="grid2">' + feats + '</div></section>' +
+      (feats ? '<section>' + sh('FEATURE', '特集・ピックアップ', 'features.html', '一覧へ') + '<div class="grid2">' + feats + '</div></section>' : '') +
       '<section>' + sh('BLOG', '編集ブログ', 'blog.html', 'ブログ一覧へ') + '<div class="rows">' + blogs + '</div></section>' +
       guideBanner();
     return hero + layout(main);
